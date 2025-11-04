@@ -1,0 +1,199 @@
+version: '3.9'
+
+# ==================== NETWORKS ====================
+networks:
+  irish-civil-war-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+
+# ==================== VOLUMES ====================
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  django_static:
+    driver: local
+  django_media:
+    driver: local
+  nginx_logs:
+    driver: local
+
+
+# ==================== SERVICES ====================
+services:
+  # ============== PostgreSQL + PostGIS (BUILD FROM LOCAL DOCKERFILE) ==============
+  db:
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    container_name: irish-war-db
+    hostname: db
+    environment:
+      POSTGRES_USER: ${DB_USER:-irish_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_change_me}
+      POSTGRES_DB: ${DB_NAME:-irish_civil_war_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    
+    ports:
+      - "5432:5432"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-irish_admin} -d ${DB_NAME:-irish_civil_war_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    
+    networks:
+      irish-civil-war-net:
+        ipv4_address: 172.25.0.2
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.example.description=PostgreSQL with PostGIS for Irish Civil War LBS"
+
+
+  # ============== PgAdmin4 ==============
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: irish-war-pgadmin
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@irish-war.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_password_change_me}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
+      PGADMIN_CONFIG_COOKIE_DEFAULT_SECURE: 'False'
+      PGADMIN_CONFIG_COOKIE_DEFAULT_SAMESITE: 'Lax'
+    
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    
+    ports:
+      - "5050:80"
+    
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    networks:
+      irish-civil-war-net:
+        ipv4_address: 172.25.0.3
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.example.description=PgAdmin4 Database Management Interface"
+
+
+  # ============== Django Application ==============
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: irish-war-app
+    hostname: django
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+      gunicorn -w 4 -b 0.0.0.0:8000
+      --access-logfile -
+      --error-logfile -
+      --log-level info
+      irish_civil_war_project.wsgi:application"
+    
+    environment:
+      DEBUG: ${DEBUG:-False}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-very-secret-key}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,django,nginx}
+      DATABASE_URL: postgresql://${DB_USER:-irish_admin}:${DB_PASSWORD:-secure_password_change_me}@db:5432/${DB_NAME:-irish_civil_war_db}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-irish_civil_war_db}
+      DB_USER: ${DB_USER:-irish_admin}
+      DB_PASSWORD: ${DB_PASSWORD:-secure_password_change_me}
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-False}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-False}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-False}
+      SECURE_HSTS_SECONDS: ${SECURE_HSTS_SECONDS:-0}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://nginx}
+      STATIC_URL: /static/
+      STATIC_ROOT: /app/staticfiles
+      MEDIA_URL: /media/
+      MEDIA_ROOT: /app/media
+      LANGUAGE_CODE: en-us
+      TIME_ZONE: UTC
+      USE_TZ: True
+    
+    volumes:
+      - django_static:/app/staticfiles
+      - django_media:/app/media
+      - ./docker/logs:/app/logs
+    
+    ports:
+      - "8000:8000"
+    
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    networks:
+      irish-civil-war-net:
+        ipv4_address: 172.25.0.4
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    labels:
+      - "com.example.description=Django Application Server"
+
+
+
+  # ============== Nginx Reverse Proxy ==============
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: irish-war-nginx
+    hostname: nginx
+    environment:
+      NGINX_HOST: ${NGINX_HOST:-localhost}
+      NGINX_PORT: ${NGINX_PORT:-80}
+    
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - django_static:/app/staticfiles:ro
+      - django_media:/app/media:ro
+      - nginx_logs:/var/log/nginx
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    depends_on:
+      django:
+        condition: service_healthy
+
+    networks:
+      irish-civil-war-net:
+        ipv4_address: 172.25.0.5
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.example.description=Nginx Reverse Proxy and Static Server"

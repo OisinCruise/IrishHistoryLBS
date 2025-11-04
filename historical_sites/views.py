@@ -1,11 +1,11 @@
 from rest_framework import viewsets, status
-from django.shortcuts import render
 from django.views.generic import TemplateView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.gis.measure import Distance as D
 from django.contrib.gis.db.models.functions import Distance  
 from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Polygon
 from django_filters import rest_framework as filters
 from .models import HistoricalSite
 from .serializers import (
@@ -128,6 +128,44 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
             categories[cat] += 1
         
         return Response(categories)
+    
+    @action(detail=False, methods=['post'])
+    def in_polygon(self, request):
+        """Find sites within a polygon (e.g., county boundary)"""
+        polygon_coords = request.data.get('polygon')  # [[lat1,lng1], [lat2,lng2], ...]
+        try:
+            # Convert to GIS polygon (exterior ring only)
+            rings = [(lng, lat) for lat, lng in polygon_coords]
+            polygon = Polygon(rings)
+            sites = HistoricalSite.objects.filter(
+                location__intersects=polygon
+            )
+            return Response({
+                'count': sites.count(),
+                'sites': self.get_serializer(sites, many=True).data
+            })
+        except (ValueError, IndexError) as e:
+            return Response({'error': str(e)}, status=400)
+
+    @action(detail=False, methods=['get'])
+    def buffer_zone(self, request):
+        """Find sites within buffer of another site"""
+        site_id = request.query_params.get('site_id')
+        buffer_km = float(request.query_params.get('buffer_km', 10))
+        try:
+            center_site = HistoricalSite.objects.get(id=site_id)
+            buffer_zone = center_site.location.buffer(buffer_km / 111.0)
+            nearby = HistoricalSite.objects.filter(
+                location__within=buffer_zone
+            ).exclude(id=site_id)
+            return Response({
+                'count': nearby.count(),
+                'center_site': center_site.name,
+                'buffer_km': buffer_km,
+                'sites': self.get_serializer(nearby, many=True).data
+            })
+        except HistoricalSite.DoesNotExist:
+            return Response({'error': 'Site not found'}, status=404)
 
 
 class MapView(TemplateView):

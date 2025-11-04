@@ -1,0 +1,23 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Irish Civil War LBS - PostgreSQL",
+      "Group": "Servers",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "irish_admin",
+      "Password": "secure_password_change_me",
+      "SSLMode": "prefer",
+      "DBRestrictionList": [],
+      "CommentColor": null,
+      "Tags": [
+        "PostGIS",
+        "Production"
+      ],
+      "OverrideMaintenanceDBPassword": false,
+      "Shared": false,
+      "SharedUsername": ""
+    }
+  }
+}
