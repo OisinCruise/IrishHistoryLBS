@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Interactive Map - Irish Civil War Historical Sites{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row g-0" style="min-height: calc(100vh - 120px);">
+        <!-- Sidebar with Filters -->
+        <div class="col-lg-3 col-md-4 bg-light py-4 sidebar border-end">
+            <div class="px-4">
+                <h4 class="fw-bold text-dark mb-4">
+                    <i class="fas fa-sliders-h me-2"></i>Map Controls
+                </h4>
+                
+                <!-- Timeline Filter Card -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fas fa-calendar-alt me-2"></i>Timeline Filter
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="start-date" class="form-label small fw-bold">Start Date</label>
+                            <input type="date" id="start-date" class="form-control form-control-sm" value="1916-04-24">
+                        </div>
+                        <div class="mb-3">
+                            <label for="end-date" class="form-label small fw-bold">End Date</label>
+                            <input type="date" id="end-date" class="form-control form-control-sm" value="1923-05-24">
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100" id="filter-timeline">
+                            <i class="fas fa-search me-1"></i>Filter by Date
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Category Filter Card -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fas fa-layer-group me-2"></i>Categories
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input category-filter" type="checkbox" value="EASTER_RISING" id="cat-easter" checked>
+                            <label class="form-check-label small" for="cat-easter">Easter Rising</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input category-filter" type="checkbox" value="WAR_INDEPENDENCE" id="cat-war" checked>
+                            <label class="form-check-label small" for="cat-war">War of Independence</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input category-filter" type="checkbox" value="TREATY" id="cat-treaty" checked>
+                            <label class="form-check-label small" for="cat-treaty">Treaty Period</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input category-filter" type="checkbox" value="CIVIL_WAR" id="cat-civil" checked>
+                            <label class="form-check-label small" for="cat-civil">Civil War</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input category-filter" type="checkbox" value="AFTERMATH" id="cat-after" checked>
+                            <label class="form-check-label small" for="cat-after">Aftermath</label>
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100 mt-2" id="apply-categories">
+                            <i class="fas fa-check me-1"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Proximity Search Card -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fas fa-location-dot me-2"></i>Proximity Search
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-3">
+                            <i class="fas fa-info-circle me-1"></i>Set a radius and click the map to find nearby sites.
+                        </p>
+                        <div class="mb-3">
+                            <label for="radius-input" class="form-label small fw-bold">Search Radius (km)</label>
+                            <input type="number" class="form-control form-control-sm" id="radius-input" value="50" min="1" max="500" step="5">
+                        </div>
+                        <button id="search-nearby" class="btn btn-sm btn-primary w-100 mb-2">
+                            <i class="fas fa-search me-1"></i>Start Search
+                        </button>
+                        <button id="reset-search" class="btn btn-sm btn-outline-secondary w-100">
+                            <i class="fas fa-redo me-1"></i>Show All Sites
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Statistics Card -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fas fa-chart-bar me-2"></i>Statistics
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <small class="text-muted">Total Sites</small>
+                            <h5 class="text-primary fw-bold mb-0" id="stat-total">0</h5>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Visible Sites</small>
+                            <h5 class="text-success fw-bold mb-0" id="stat-visible">0</h5>
+                        </div>
+                        <hr class="my-2">
+                        <small class="text-muted d-block">
+                            <strong>Date Range:</strong> 24 Apr 1916 - 24 May 1923
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map Container -->
+        <div class="col-lg-9 col-md-8 position-relative">
+            <div id="map" style="height: calc(100vh - 120px); width: 100%;" class="rounded-start"></div>
+            <div class="map-legend position-absolute bottom-0 start-0 m-3 bg-white rounded shadow-sm p-3" style="z-index: 401;">
+                <h6 class="fw-bold mb-2">Legend</h6>
+                <small>
+                    <div class="mb-1"><span class="badge" style="background-color: #E74C3C;">●</span> Easter Rising</div>
+                    <div class="mb-1"><span class="badge" style="background-color: #3498DB;">●</span> War of Independence</div>
+                    <div class="mb-1"><span class="badge" style="background-color: #F39C12;">●</span> Treaty Period</div>
+                    <div class="mb-1"><span class="badge" style="background-color: #C0392B;">●</span> Civil War</div>
+                    <div><span class="badge" style="background-color: #27AE60;">●</span> Aftermath</div>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Site Details Modal -->
+<div class="modal fade" id="siteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold" id="siteModalTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="siteModalBody">
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    window.DJANGO_CONTEXT = {
+        apiBaseUrl: '/api/sites/',
+        csrfToken: '{{ csrf_token }}'
+    };
+</script>
+<script src="{% static 'js/map.js' %}"></script>
+{% endblock %}

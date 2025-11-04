@@ -1,0 +1,464 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Irish Civil War Historical Sites - Location-Based Services{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Skip to main content link for keyboard navigation -->
+    <a href="#map-section" class="skip-to-main">Skip to main content</a>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#hero">
+                <i class="fas fa-map-marked-alt me-2"></i>Irish Civil War LBS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#history">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#map-section">Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#timeline">Timeline</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section position-relative overflow-hidden">
+        <div class="hero-bg"></div>
+        <div class="container position-relative py-5" style="z-index: 2;">
+            <div class="row align-items-center min-vh-100">
+                <div class="col-lg-8 mx-auto text-center text-white">
+                    <h1 class="display-2 fw-bold mb-4 hero-title">
+                        Explore Irish Civil War History
+                    </h1>
+                    <p class="lead mb-4 hero-subtitle">
+                        Discover the pivotal locations, events, and stories that shaped Irish independence through interactive mapping and historical analysis
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="#map-section" class="btn btn-primary btn-lg">
+                            <i class="fas fa-map me-2"></i>Explore Interactive Map
+                        </a>
+                        <a href="#history" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-book me-2"></i>Learn History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historical Content Section -->
+    <section id="history" class="history-section py-5">
+        <div class="container">
+            <!-- Introduction -->
+            <div class="row align-items-center mb-5 pb-5 border-bottom">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="content-card">
+                        <h2 class="display-5 fw-bold mb-4">About the Irish Civil War</h2>
+                        <p class="lead text-dark mb-3">
+                            The Irish Civil War (1922-1923) was a devastating conflict fought between the National Army of the Irish Free State and 
+                            the anti-treaty Irish Republican Army. It emerged from disagreements over the Anglo-Irish Treaty of 1921 and fundamentally 
+                            shaped modern Irish history.
+                        </p>
+                        <p class="text-dark mb-3">
+                            This application brings together geographic information systems (GIS), historical data, and modern web technologies 
+                            to document and visualize the locations where critical events of this pivotal period occurred.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><strong><i class="fas fa-check-circle text-primary me-2"></i>22 Documented Historical Sites</strong></li>
+                            <li class="mb-2"><strong><i class="fas fa-check-circle text-primary me-2"></i>5 Historical Periods Covered</strong></li>
+                            <li><strong><i class="fas fa-check-circle text-primary me-2"></i>Interactive Spatial Analysis</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="history-image-container">
+                        <img src="{% static 'images/placeholders/history.jpg' %}" 
+                            alt="Historical photograph of significant locations from the Irish Civil War period"
+                            class="img-fluid rounded-lg shadow"
+                            style="height: 400px; object-fit: cover; width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Periods -->
+            <div class="row align-items-center py-5">
+                <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
+                    <div class="content-card">
+                        <h3 class="h2 fw-bold mb-4">The Historical Periods</h3>
+                        <p class="text-dark mb-4">
+                            This application categorizes events into five distinct historical periods, each crucial to understanding the conflict's progression:
+                        </p>
+                        
+                        <div class="period-item mb-3">
+                            <h5 class="text-primary fw-bold"><span style="color: #E74C3C;">●</span> Easter Rising (1916)</h5>
+                            <p class="text-dark small">The failed insurrection that ignited the independence movement</p>
+                        </div>
+                        
+                        <div class="period-item mb-3">
+                            <h5 class="text-primary fw-bold"><span style="color: #3498DB;">●</span> War of Independence (1919-1921)</h5>
+                            <p class="text-dark small">Guerrilla campaign led by the IRA against British forces</p>
+                        </div>
+                        
+                        <div class="period-item mb-3">
+                            <h5 class="text-primary fw-bold"><span style="color: #F39C12;">●</span> Treaty Period (1921-1922)</h5>
+                            <p class="text-dark small">Negotiations and the controversial Anglo-Irish Treaty</p>
+                        </div>
+                        
+                        <div class="period-item mb-3">
+                            <h5 class="text-primary fw-bold"><span style="color: #C0392B;">●</span> Civil War (1922-1923)</h5>
+                            <p class="text-dark small">Conflict between pro-treaty and anti-treaty forces</p>
+                        </div>
+                        
+                        <div class="period-item">
+                            <h5 class="text-primary fw-bold"><span style="color: #27AE60;">●</span> Aftermath (1923+)</h5>
+                            <p class="text-dark small">Reconstruction and establishment of the Irish Free State</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-lg-1">
+                    <div class="history-image-container">
+                        <img src="{% static 'images/placeholders/timeline.jpg' %}" 
+                            alt="Timeline visualization showing key events of the Irish Civil War from 1916-1923"
+                            class="img-fluid rounded-lg shadow"
+                            style="height: 400px; object-fit: cover; width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section id="map-section" class="map-section py-5 bg-light">
+        <div class="container-fluid">
+            <div class="container mb-5">
+                <h2 class="display-5 fw-bold text-center mb-2">Interactive Historical Sites Map</h2>
+                <p class="text-center text-muted lead">Explore locations and filter by time period, event category, and geographic proximity</p>
+            </div>
+
+            <div class="row g-0 map-container-wrapper" style="min-height: calc(100vh - 200px);">
+                <!-- Map Controls Sidebar -->
+                <div class="col-lg-3 col-md-4 bg-white py-4 sidebar border-end map-sidebar">
+                    <div class="px-4">
+                        <h5 class="fw-bold text-dark mb-4">
+                            <i class="fas fa-sliders-h me-2"></i>Map Controls
+                        </h5>
+                        
+                        <!-- Timeline Filter -->
+                        <div class="card mb-3 border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="fas fa-calendar-alt me-2"></i>Timeline
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="start-date" class="form-label small fw-bold">Start Date</label>
+                                    <input type="date" id="start-date" class="form-control form-control-sm" value="1916-04-24">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="end-date" class="form-label small fw-bold">End Date</label>
+                                    <input type="date" id="end-date" class="form-control form-control-sm" value="1923-05-24">
+                                </div>
+                                <button class="btn btn-sm btn-primary w-100" id="filter-timeline">
+                                    <i class="fas fa-search me-1"></i>Filter by Date
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="card mb-3 border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="fas fa-layer-group me-2"></i>Categories
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-filter" type="checkbox" value="EASTER_RISING" id="cat-easter" checked>
+                                    <label class="form-check-label small" for="cat-easter">Easter Rising</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-filter" type="checkbox" value="WAR_INDEPENDENCE" id="cat-war" checked>
+                                    <label class="form-check-label small" for="cat-war">War of Independence</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-filter" type="checkbox" value="TREATY" id="cat-treaty" checked>
+                                    <label class="form-check-label small" for="cat-treaty">Treaty Period</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-filter" type="checkbox" value="CIVIL_WAR" id="cat-civil" checked>
+                                    <label class="form-check-label small" for="cat-civil">Civil War</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-filter" type="checkbox" value="AFTERMATH" id="cat-after" checked>
+                                    <label class="form-check-label small" for="cat-after">Aftermath</label>
+                                </div>
+                                <button class="btn btn-sm btn-primary w-100 mt-2" id="apply-categories">
+                                    <i class="fas fa-check me-1"></i>Apply Filters
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Proximity Search -->
+                        <div class="card mb-3 border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="fas fa-location-dot me-2"></i>Proximity Search
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="small text-muted mb-3">
+                                    <i class="fas fa-info-circle me-1"></i>Set radius and click the map to search
+                                </p>
+                                <div class="mb-3">
+                                    <label for="radius-input" class="form-label small fw-bold">Search Radius (km)</label>
+                                    <input type="number" class="form-control form-control-sm" id="radius-input" value="50" min="1" max="500" step="5">
+                                </div>
+                                <button id="search-nearby" class="btn btn-sm btn-primary w-100 mb-2">
+                                    <i class="fas fa-search me-1"></i>Start Search
+                                </button>
+                                <button id="reset-search" class="btn btn-sm btn-outline-secondary w-100">
+                                    <i class="fas fa-redo me-1"></i>Show All Sites
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Statistics -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0 fw-bold">
+                                    <i class="fas fa-chart-bar me-2"></i>Statistics
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <small class="text-muted">Total Sites</small>
+                                    <h5 class="text-primary fw-bold mb-0" id="stat-total">0</h5>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">Visible Sites</small>
+                                    <h5 class="text-success fw-bold mb-0" id="stat-visible">0</h5>
+                                </div>
+                                <hr class="my-2">
+                                <small class="text-muted">
+                                    <strong>Period:</strong> 1916-1923
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Container -->
+                <div class="col-lg-9 col-md-8 position-relative">
+                    <div id="map" style="height: 100%; width: 100%;"></div>
+                    <div class="map-legend position-absolute bottom-0 start-0 m-3 bg-white rounded shadow-sm p-3" style="z-index: 401;">
+                        <h6 class="fw-bold mb-2">Legend</h6>
+                        <small>
+                            <div class="mb-1"><span style="color: #E74C3C; font-size: 1.2rem;">●</span> Easter Rising</div>
+                            <div class="mb-1"><span style="color: #3498DB; font-size: 1.2rem;">●</span> War of Independence</div>
+                            <div class="mb-1"><span style="color: #F39C12; font-size: 1.2rem;">●</span> Treaty Period</div>
+                            <div class="mb-1"><span style="color: #C0392B; font-size: 1.2rem;">●</span> Civil War</div>
+                            <div><span style="color: #27AE60; font-size: 1.2rem;">●</span> Aftermath</div>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline" class="timeline-section py-5">
+        <div class="container">
+            <h2 class="display-5 fw-bold text-center mb-5">Historical Timeline</h2>
+            
+            <div class="timeline">
+                <!-- Easter Rising -->
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="background-color: #E74C3C;">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 class="fw-bold mb-2">Easter Rising - April 1916</h4>
+                        <p class="text-dark mb-2">
+                            The Easter Rising was an armed insurrection in Dublin that aimed to end British rule in Ireland. Though ultimately unsuccessful, 
+                            it became a pivotal moment that galvanized public support for Irish independence.
+                        </p>
+                        <ul class="small text-dark">
+                            <li>Commenced: Easter Monday, April 24, 1916</li>
+                            <li>Key Location: General Post Office, Dublin</li>
+                            <li>Outcome: Suppressed by British forces; leaders executed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- War of Independence -->
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="background-color: #3498DB;">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 class="fw-bold mb-2">War of Independence - 1919-1921</h4>
+                        <p class="text-dark mb-2">
+                            Following the Easter Rising, Irish nationalists launched a guerrilla campaign against British occupation forces. 
+                            Led by Michael Collins and the IRA, this conflict resulted in increased support for independence.
+                        </p>
+                        <ul class="small text-dark">
+                            <li>Duration: January 1919 - July 1921</li>
+                            <li>Strategy: Guerrilla warfare and targeted assassinations</li>
+                            <li>Result: Led to treaty negotiations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Treaty Period -->
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="background-color: #F39C12;">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 class="fw-bold mb-2">Treaty Period - 1921-1922</h4>
+                        <p class="text-dark mb-2">
+                            The Anglo-Irish Treaty of December 1921 established the Irish Free State. However, the treaty's terms—including recognition 
+                            of the British Crown and partition of Ireland—proved deeply controversial among Irish republicans.
+                        </p>
+                        <ul class="small text-dark">
+                            <li>Signed: December 6, 1921</li>
+                            <li>Established: Irish Free State (26 counties)</li>
+                            <li>Controversial: Oath of allegiance to British Crown</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Civil War -->
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="background-color: #C0392B;">
+                        <i class="fas fa-bomb"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 class="fw-bold mb-2">Civil War - 1922-1923</h4>
+                        <p class="text-dark mb-2">
+                            The treaty's controversial terms sparked a devastating civil war between pro-treaty forces (National Army) and 
+                            anti-treaty republicans (IRA). The conflict devastated Irish society and resulted in thousands of casualties.
+                        </p>
+                        <ul class="small text-dark">
+                            <li>Duration: June 1922 - May 1923</li>
+                            <li>Casualties: Estimated 1,000+ deaths</li>
+                            <li>Outcome: Pro-treaty forces victorious</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Aftermath -->
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="background-color: #27AE60;">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4 class="fw-bold mb-2">Aftermath - 1923 Onwards</h4>
+                        <p class="text-dark mb-2">
+                            Following the civil war's end, Ireland began the difficult process of reconstruction and state-building. The Irish Free State 
+                            evolved into the Republic of Ireland, while Northern Ireland remained part of the United Kingdom.
+                        </p>
+                        <ul class="small text-dark">
+                            <li>Reconstruction period: 1923-1930s</li>
+                            <li>Evolution: Irish Free State (1922) → Ireland (1949)</li>
+                            <li>Legacy: Shaped modern Irish politics and society</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h6 class="fw-bold text-white mb-3">Irish Civil War LBS</h6>
+                    <p class="small text-light mb-0">
+                        A Location-Based Services application exploring historical sites from the Irish Civil War period using advanced geospatial technologies.
+                    </p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h6 class="fw-bold text-white mb-3">Technologies</h6>
+                    <ul class="list-unstyled small text-light">
+                        <li><i class="fas fa-check me-1"></i>Django REST Framework</li>
+                        <li><i class="fas fa-check me-1"></i>PostGIS Spatial Database</li>
+                        <li><i class="fas fa-check me-1"></i>Leaflet.js Mapping</li>
+                        <li><i class="fas fa-check me-1"></i>Bootstrap 5 UI</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="fw-bold text-white mb-3">About This Site</h6>
+                    <p class="small text-light mb-0">
+                        Created as an educational and research tool for exploring Irish history. All data is sourced from historical records and academic sources.
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="row">
+                <div class="col text-center">
+                    <small class="text-light">
+                        © 2025 Irish Civil War Historical Sites. All rights reserved. | 
+                        Built with <i class="fas fa-heart text-danger"></i> for history
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Site Details Modal -->
+    <div class="modal fade" id="siteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title fw-bold" id="siteModalTitle"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="siteModalBody"></div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        window.DJANGO_CONTEXT = {
+            apiBaseUrl: '/api/sites/',
+            csrfToken: '{{ csrf_token }}'
+        };
+    </script>
+    <script src="{% static 'js/map.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
