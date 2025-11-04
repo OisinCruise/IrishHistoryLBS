@@ -451,22 +451,6 @@ The hero section features the application title with call-to-action buttons for 
 
 ---
 
-## Known Issues & Limitations
-
-### Current Limitations
-
-1. **Historical Data Completeness**: Database contains 22 documented sites. Additional historical sites may be added in future releases.
-
-2. **Real-time Updates**: Site data requires manual updates. Real-time event integration not yet implemented.
-
-3. **Authentication**: Currently read-only API with no user authentication. Future version will include user accounts and contributions.
-
-4. **Mobile Offline Support**: Application requires active internet connection. Offline mode not yet implemented.
-
-5. **Media Files**: Historical photographs not yet integrated. Currently displays placeholder images.
-
----
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
