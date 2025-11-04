@@ -473,16 +473,6 @@ The hero section features the application title with call-to-action buttons for 
 
 5. **Media Files**: Historical photographs not yet integrated. Currently displays placeholder images.
 
-### Browser Support
-
-| Browser | Support |
-|---------|---------|
-| Chrome | ✅ 90+ |
-| Firefox | ✅ 88+ |
-| Safari | ✅ 14+ |
-| Edge | ✅ 90+ |
-| IE 11 | ❌ Not supported |
-
 ### Performance Notes
 
 - Large proximity searches (100+ km radius) may experience slight delay
@@ -491,38 +481,9 @@ The hero section features the application title with call-to-action buttons for 
 
 ---
 
-## Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Development Standards
-
-- Follow PEP 8 style guide
-- Write unit tests for new features
-- Update documentation
-- Ensure WCAG AA accessibility compliance
-
----
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## Contact & Support
-
-- **Project Owner**: Oisin Cruise
-- **Email**: [your-email@example.com]
-- **GitHub Issues**: [Report bugs or request features](https://github.com/yourusername/irish-civil-war-lbs/issues)
-- **University**: Technological University Dublin
-- **Course**: Advanced Web Mapping (ICW_LBS)
 
 ---
 
