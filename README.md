@@ -421,23 +421,33 @@ See `docker-compose.yml` and `Dockerfile` for configuration details.
 ### Home Page
 The hero section features the application title with call-to-action buttons for exploring the interactive map and learning about Irish Civil War history.
 
+<img width="1470" height="877" alt="Screenshot 2025-11-04 at 17 08 47" src="https://github.com/user-attachments/assets/a5c0676a-dfb0-49a5-8389-86d7c70f8874" />
+<img width="1470" height="878" alt="Screenshot 2025-11-04 at 17 09 18" src="https://github.com/user-attachments/assets/504e38d1-5109-4c9c-a622-f73ea92f5a22" />
+
 ### Interactive Map
 - Leaflet-based interactive map displaying 22 historical sites
 - Color-coded markers by historical period
 - Real-time site list with filtering controls
 - Modal popups with detailed site information
 
-### Filters and Controls
+<img width="1470" height="877" alt="Screenshot 2025-11-04 at 17 09 42" src="https://github.com/user-attachments/assets/c3cc9696-b9a2-45b1-9bae-aa2d8e0ef0b9" />
+
+### Filters and Controls and Alternate Views
 - **Timeline Filter**: Date range picker (1916-1923)
 - **Category Filter**: Multi-select historical periods
 - **Proximity Search**: Search nearby sites within custom radius
 - **Statistics**: Display total and visible sites
+
+<img width="1470" height="874" alt="Screenshot 2025-11-04 at 18 12 28" src="https://github.com/user-attachments/assets/b55cad6b-c7ad-4b8f-9b3e-9ca20be5e733" />
+<img width="1470" height="874" alt="Screenshot 2025-11-04 at 18 12 50" src="https://github.com/user-attachments/assets/2b85d26d-9e72-4a40-bc3c-5b5694823254" />
 
 ### Accessibility Features
 - WCAG AA compliant (0 accessibility issues)
 - Keyboard navigation throughout
 - High contrast color schemes
 - Screen reader optimized
+
+<img width="1470" height="874" alt="Screenshot 2025-11-04 at 18 12 50" src="https://github.com/user-attachments/assets/0f2f0570-ed8b-4b6f-9c53-1b2de44c51c9" />
 
 ---
 
