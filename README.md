@@ -15,8 +15,6 @@
 - [Database Schema](#database-schema)
 - [Deployment](#deployment)
 - [Screenshots](#screenshots)
-- [Known Issues & Limitations](#known-issues--limitations)
-- [Contributing](#contributing)
 - [License](#license)
 
 ---
