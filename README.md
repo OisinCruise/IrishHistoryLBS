@@ -447,7 +447,7 @@ The hero section features the application title with call-to-action buttons for 
 - High contrast color schemes
 - Screen reader optimized
 
-<img width="1470" height="874" alt="Screenshot 2025-11-04 at 18 12 50" src="https://github.com/user-attachments/assets/0f2f0570-ed8b-4b6f-9c53-1b2de44c51c9" />
+![Uploading Screenshot 2025-11-04 at 18.14.41.png…]()
 
 ---
 
