@@ -392,24 +392,6 @@ CREATE INDEX idx_period ON api_historicalsite(period);
 
 ## Deployment
 
-### Cloud Deployment (Heroku Example)
-
-```bash
-# Create Procfile
-echo "web: gunicorn irish_civil_war_project.wsgi" > Procfile
-
-# Add Heroku remote
-heroku create your-app-name
-
-# Configure environment variables
-heroku config:set DEBUG=False
-heroku config:set SECRET_KEY=your-secret-key
-heroku config:set DATABASE_URL=your-heroku-postgres-url
-
-# Deploy
-git push heroku main
-```
-
 ### Docker Deployment
 
 ```bash
@@ -473,12 +455,6 @@ The hero section features the application title with call-to-action buttons for 
 
 5. **Media Files**: Historical photographs not yet integrated. Currently displays placeholder images.
 
-### Performance Notes
-
-- Large proximity searches (100+ km radius) may experience slight delay
-- PostGIS queries optimized with spatial indexes
-- Static files cached with 1-year expiration
-
 ---
 
 ## License
@@ -498,4 +474,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 **Last Updated**: November 2025  
-**Version**: 1.0.0
