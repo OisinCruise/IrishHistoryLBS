@@ -78,46 +78,48 @@
 irish-civil-war-lbs/
 ├── manage.py                          # Django management script
 ├── requirements.txt                   # Python dependencies
+├── docker-compose.yml                 # Docker Compose configuration
+├── Dockerfile                         # Docker image definition
 ├── .env.example                       # Environment variables template
 ├── .gitignore                         # Git ignore configuration
+│
 ├── irish_civil_war_project/           # Main Django project settings
 │   ├── __init__.py
 │   ├── settings.py                    # Project configuration
 │   ├── urls.py                        # Main URL routing
 │   ├── wsgi.py                        # WSGI configuration
 │   └── asgi.py                        # ASGI configuration
-├── api/                               # REST API app
+│
+├── api/                               # REST API (API Logic remains in app as no external API used)
+│
+├── historical_sites/                  # Historical sites REST API App
 │   ├── migrations/                    # Database migrations
 │   ├── models.py                      # Historical site model
 │   ├── serializers.py                 # DRF serializers
 │   ├── views.py                       # API viewsets
 │   ├── urls.py                        # API URL routing
 │   └── admin.py                       # Django admin config
-├── historical_sites/                  # Historical sites app
-│   ├── migrations/
-│   ├── models.py
-│   ├── views.py                       # Frontend views
-│   ├── urls.py
-│   └── templates/
-│       └── historical_sites/
+│   └── management/
+│       └── commands/
+│       └────── load_historical_sites.py
+│
 ├── templates/                         # Global templates
 │   ├── base.html                      # Base template
-│   └── historical_sites/
-│       ├── index.html
-│       └── detail.html
+│   └── map.html
+│
 ├── static/                            # Static files
 │   ├── css/
 │   │   └── style.css                  # Main stylesheet
 │   ├── js/
 │   │   ├── map.js                     # Map initialization and logic
+│   │   ├── scripts.js                 # Script for smooth web page
 │   │   └── main.js                    # Global JavaScript
 │   └── images/
+│
 ├── staticfiles/                       # Collected static files (production)
-├── logs/                              # Application logs
-├── irish_civil_war_sites.json         # Historical data (import fixture)
-├── docker-compose.yml                 # Docker Compose configuration
-├── Dockerfile                         # Docker image definition
-├── nginx.conf                         # Nginx configuration
+│
+├── documentation/                     # Project Technology Diagram and Database Schema Docs.
+│
 └── venv/                              # Virtual environment (excluded from git)
 ```
 
@@ -125,111 +127,80 @@ irish-civil-war-lbs/
 
 ## Setup Instructions
 
-### Local Development Setup
+### Docker Deployment Setup
 
-#### Prerequisites
-- Python 3.9 or higher
-- PostgreSQL 12 or higher with PostGIS extension
-- Git
-- Virtual environment manager (venv or conda)
-
-#### Step 1: Clone the Repository
-
+1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/irish-civil-war-lbs.git
 cd irish-civil-war-lbs
 ```
 
-#### Step 2: Create Virtual Environment
-
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-# OR
-venv\Scripts\activate  # Windows
-```
-
-#### Step 3: Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-#### Step 4: Configure Environment Variables
-
-```bash
+2. Create environment file
 cp .env.example .env
-# Edit .env with your local configuration
 ```
 
-**Key environment variables to set:**
+#### Django Settings
 ```env
-DEBUG=True
-SECRET_KEY=your-django-secret-key-here
-ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=postgresql://user:password@localhost:5432/irish_civil_war_db
-POSTGIS_URL=postgresql://user:password@localhost:5432/irish_civil_war_db
+DEBUG=False
+SECRET_KEY=change-me-in-production-very-secret-key
+ALLOWED_HOSTS=localhost,127.0.0.1,django,nginx
 ```
 
-#### Step 5: Database Setup
+#### Database Configuration
+```env
+DB_USER=irish_admin
+DB_PASSWORD=secure_password_change_me
+DB_NAME=irish_civil_war_db
+DB_HOST=db
+DB_PORT=5432
+```
 
+##### PgAdmin (Database Management UI)
+```env
+PGADMIN_EMAIL=admin@irish-war.local
+PGADMIN_PASSWORD=admin_password_change_me
+```
+
+##### Security 
+```env
+SECURE_SSL_REDIRECT=False
+SESSION_COOKIE_SECURE=False
+CSRF_COOKIE_SECURE=False
+SECURE_HSTS_SECONDS=0
+```
+
+#### Nginx Configuration
+```env
+NGINX_HOST=localhost
+NGINX_PORT=80
+```
+
+#### CORS (API Access)
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000
+```
+
+3. Build and start all services
 ```bash
-# Create PostgreSQL database
-createdb irish_civil_war_db
-psql irish_civil_war_db -c "CREATE EXTENSION postgis;"
-
-# Run migrations
-python manage.py migrate
-
-# Load historical data
-python manage.py loaddata irish_civil_war_sites.json
-
-# Create superuser
-python manage.py createsuperuser
+docker-compose build --no-cache
+docker-compose up -d
 ```
+**Note:**Wait for all containers to be healthy before Step 4.
 
-#### Step 6: Collect Static Files
-
+4. Load historical data
 ```bash
-python manage.py collectstatic --noinput
+docker-compose exec django python manage.py migrate
+docker-compose exec django python load_historical_sites.py
 ```
 
-#### Step 7: Run Development Server
+5. Access the application
+  - Open `http://127.0.0.1` in your browser
 
-```bash
-python manage.py runserver
-```
-
-Visit `http://localhost:8000` in your browser.
 
 ---
 
 ## Configuration
-
-### Environment Variables (.env)
-
-Create a `.env` file in the project root (see `.env.example` for template):
-
-```env
-# Django Settings
-DEBUG=False
-SECRET_KEY=your-secure-secret-key
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-
-# Database
-DATABASE_URL=postgresql://user:password@host:5432/database_name
-
-# Email (optional)
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-
-# CORS (for API)
-CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
-```
 
 ### Django Settings
 
@@ -238,30 +209,6 @@ Key settings in `irish_civil_war_project/settings.py`:
 - **DATABASES**: Configured for PostgreSQL with PostGIS support
 - **MIDDLEWARE**: CORS, CSRF, and authentication middleware
 - **REST_FRAMEWORK**: Pagination, authentication, and filtering configuration
-
----
-
-## Running the Application
-
-### Development Server
-
-```bash
-python manage.py runserver
-```
-
-### Production with Gunicorn
-
-```bash
-gunicorn -w 4 -b 0.0.0.0:8000 irish_civil_war_project.wsgi
-```
-
-### Using Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-Access the application at `http://localhost:8000`
 
 ---
 
@@ -287,31 +234,6 @@ GET /api/sites/
 **Example:**
 ```bash
 curl "http://localhost:8000/api/sites/?period=CIVIL_WAR&search=Dublin"
-```
-
-**Response:**
-```json
-{
-  "count": 22,
-  "next": null,
-  "previous": null,
-  "results": [
-    {
-      "id": 1,
-      "name": "General Post Office",
-      "location": {
-        "type": "Point",
-        "coordinates": [-6.2655, 53.3432]
-      },
-      "period": "EASTER_RISING",
-      "latitude": 53.3432,
-      "longitude": -6.2655,
-      "description": "Site of Easter Rising proclamation",
-      "significance": "HIGH",
-      "created_at": "2025-01-15T10:30:00Z"
-    }
-  ]
-}
 ```
 
 #### 2. Retrieve Single Site
@@ -355,22 +277,53 @@ GET /api/sites/?date_from=1916-01-01&date_to=1923-12-31
 ### Historical Site Model
 
 ```sql
-CREATE TABLE api_historicalsite (
+CREATE TABLE historical_sites_historicalsite (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
+  
+  -- Basic Information
+  name VARCHAR(255) NOT NULL UNIQUE,
+  event_date DATE NOT NULL,
+  location_name VARCHAR(500) NOT NULL,
+  
+  -- Spatial Data (PostGIS)
   location GEOMETRY(Point, 4326) NOT NULL,
-  period VARCHAR(50) NOT NULL,
-  latitude DECIMAL(9, 6),
-  longitude DECIMAL(9, 6),
-  significance VARCHAR(50),
-  historical_context JSONB,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  
+  -- Historical Context
+  significance TEXT NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  event_type VARCHAR(100) NOT NULL,
+  
+  -- Additional Details
+  description TEXT,
+  casualties INTEGER,
+  commanders JSONB DEFAULT '[]',
+  
+  -- Media and Resources
+  images JSONB DEFAULT '[]',
+  audio_url VARCHAR(200),
+  sources JSONB DEFAULT '[]',
+  
+  -- Metadata
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_location ON api_historicalsite USING GIST(location);
-CREATE INDEX idx_period ON api_historicalsite(period);
+-- Spatial index for location-based queries
+CREATE INDEX idx_historicalsite_location 
+  ON historical_sites_historicalsite 
+  USING GIST(location);
+
+-- B-tree indexes for filtering
+CREATE INDEX idx_historicalsite_event_date 
+  ON historical_sites_historicalsite(event_date);
+
+CREATE INDEX idx_historicalsite_category 
+  ON historical_sites_historicalsite(category);
+
+-- Unique constraint on site name
+CREATE UNIQUE INDEX idx_historicalsite_name 
+  ON historical_sites_historicalsite(name);
+
 ```
 
 ### Period Choices
@@ -385,32 +338,6 @@ CREATE INDEX idx_period ON api_historicalsite(period);
 - `HIGH`: Important site
 - `MEDIUM`: Notable site
 - `LOW`: Minor historical interest
-
----
-
-## Deployment
-
-### Docker Deployment
-
-```bash
-# Build image
-docker build -t irish-civil-war-lbs .
-
-# Run container
-docker run -p 8000:8000 \
-  -e DEBUG=False \
-  -e SECRET_KEY=your-secret \
-  -e DATABASE_URL=postgresql://... \
-  irish-civil-war-lbs
-```
-
-### Using Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-See `docker-compose.yml` and `Dockerfile` for configuration details.
 
 ---
 

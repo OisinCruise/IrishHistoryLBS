@@ -8,3 +8,4 @@ staticfiles/
 .idea/
 .vscode/
 load_sites.py
+logs/
