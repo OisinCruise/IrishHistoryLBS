@@ -1,0 +1,156 @@
+[
+    {
+        "name": "GPO Occupation - Easter Rising",
+        "description": "The General Post Office on O'Connell Street was occupied by Irish rebels during the 1916 Easter Rising. The building served as the headquarters of the rebel movement and was heavily damaged during the fighting. It remains one of the most iconic symbols of Irish independence.",
+        "images": [
+            "/static/images/placeholders/GPO_1916.jpg"
+        ]
+    },
+    {
+        "name": "Soloheadbeg Ambush",
+        "description": "The Soloheadbeg Ambush, which took place on 21 January 1919 in County Tipperary, is widely regarded as the opening action of the Irish War of Independence. A flying column of Irish Volunteers ambushed a Royal Irish Constabulary escort transporting gelignite from a local quarry.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Bloody Sunday - Croke Park",
+        "description": "On Bloody Sunday, 21 November 1920, British forces fired on a crowd of spectators watching a Gaelic football match at Croke Park in Dublin, killing 14 civilians and injuring many others. The event was a turning point in the War of Independence.",
+        "images": [
+            "/static/images/placeholders/bloody_sunday.jpg"
+        ]
+    },
+    {
+        "name": "Kilmichael Ambush",
+        "description": "The Kilmichael Ambush on 28 November 1920 in County Cork was one of the most successful engagements of the Irish War of Independence. The IRA, led by Tom Barry, ambushed a Temporary Constabulary patrol, killing 17 of the 18 members.",
+        "images": [
+            "/static/images/placeholders/Tom_Barry_IRA.jpg"
+        ]
+    },
+    {
+        "name": "Anglo-Irish Treaty Signing",
+        "description": "The Anglo-Irish Treaty was signed on 6 December 1921 in London by Irish and British representatives. The treaty established the Irish Free State and ended the War of Independence, though it sparked controversy due to its provisions regarding Partition.",
+        "images": [
+            "/static/images/placeholders/anglo_treaty.jpg"
+        ]
+    },
+    {
+        "name": "Treaty Ratification",
+        "description": "The Dáil Éireann voted to ratify the Anglo-Irish Treaty on 7 January 1922 by a narrow margin of 64 votes to 57. This vote deepened divisions within Irish republicanism and ultimately led to the Irish Civil War.",
+        "images": [
+            "/static/images/placeholders/anglo_treaty.jpg"
+        ]
+    },
+    {
+        "name": "Four Courts Occupation",
+        "description": "Anti-Treaty forces occupied the Four Courts building in Dublin on 14 April 1922 as a protest against the Treaty. The occupation lasted until June 1922 when Free State forces bombarded the building, marking the start of the Irish Civil War.",
+        "images": [
+            "/static/images/placeholders/four-courts-dublin.jpg"
+        ]
+    },
+    {
+        "name": "Bombardment of Four Courts - Civil War Begins",
+        "description": "On 28 June 1922, Free State forces, equipped with artillery, began bombarding the Four Courts, which was occupied by anti-Treaty IRA forces. This marked the official beginning of the Irish Civil War.",
+        "images": [
+            "/static/images/placeholders/four-courts-dublin.jpg"
+        ]
+    },
+    {
+        "name": "Battle of Dublin Begins",
+        "description": "The Battle of Dublin commenced on 28 June 1922 and lasted until 6 July 1922. It was the largest battle of the Irish Civil War, fought primarily in Dublin's streets between the Free State forces and anti-Treaty republicans.",
+        "images": [
+            "/static/images/placeholders/battle_of_dublin.jpg"
+        ]
+    },
+    {
+        "name": "Battle of Drogheda",
+        "description": "The Battle of Drogheda (July 1922) was fought between Free State and anti-Treaty forces during the Irish Civil War. The Free State forces eventually captured the town after intense fighting.",
+        "images": [
+            "/static/images/placeholders/drogheda_1922.jpg"
+        ]
+    },
+    {
+        "name": "Battle of Limerick",
+        "description": "The Battle of Limerick (July 1922) saw Free State forces capture the city from anti-Treaty republicans. It was one of several major engagements during the civil war.",
+        "images": [
+            "/static/images/placeholders/limerick_1922.jpg"
+        ]
+    },
+    {
+        "name": "Fall of Waterford",
+        "description": "Anti-Treaty forces were defeated in Waterford during August 1922 as the Free State forces advanced through Munster during the Irish Civil War.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Battle of Kilmallock",
+        "description": "The Battle of Kilmallock was fought between Free State and anti-Treaty forces in County Limerick during the Irish Civil War.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Fenit Naval Landing",
+        "description": "Anti-Treaty forces attempted a naval landing at Fenit in County Kerry in August 1922, attempting to reinforce their positions but were ultimately repelled by Free State forces.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Battle of Killmallock (Final)",
+        "description": "The final battle at Killmallock in September 1922 resulted in a decisive Free State victory, effectively ending major anti-Treaty resistance in Munster.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Cork Landings",
+        "description": "Free State forces landed on the Cork coast in August 1922 as part of their campaign to capture the province from anti-Treaty republicans.",
+        "images": [
+            "/static/images/placeholders/cork_city.jpg"
+        ]
+    },
+    {
+        "name": "Fall of Cork City",
+        "description": "Cork City fell to Free State forces on 10 August 1922 after a short siege, marking a major victory for the pro-Treaty side.",
+        "images": [
+            "/static/images/placeholders/cork_city.jpg"
+        ]
+    },
+    {
+        "name": "Death of Michael Collins",
+        "description": "Michael Collins, one of the most significant figures of the Irish independence movement, was killed in an ambush in West Cork on 22 August 1922. His death was a significant blow to the Free State forces.",
+        "images": [
+            "/static/images/placeholders/Michael_Collins.jpg"
+        ]
+    },
+    {
+        "name": "First Civil War Executions",
+        "description": "The Free State government began executing anti-Treaty prisoners in November 1922 as a policy to suppress the rebellion. These executions were highly controversial.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Mountjoy Executions",
+        "description": "Anti-Treaty prisoners were executed at Mountjoy Prison during the Irish Civil War as part of the Free State's repression of the rebellion.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    },
+    {
+        "name": "Death of Liam Lynch",
+        "description": "Liam Lynch, a prominent anti-Treaty military leader, was killed by Free State forces on 10 April 1923. His death was effectively the end of organized anti-Treaty military resistance.",
+        "images": [
+            "/static/images/placeholders/Liam_Lynch.jpg"
+        ]
+    },
+    {
+        "name": "Ceasefire and Dump Arms Order",
+        "description": "On 27 April 1923, anti-Treaty forces issued a cease-fire order and ordered their members to dump arms, effectively ending the Irish Civil War. Hostilities officially ended on 24 May 1923.",
+        "images": [
+            "/static/images/placeholders/civil_war.jpg"
+        ]
+    }
+]

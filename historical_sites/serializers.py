@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import HistoricalSite
 from .models import CountyBoundary
 
+
 class HistoricalSiteGeoJSONSerializer(GeoFeatureModelSerializer):
     """Serializer for GeoJSON format"""
     
@@ -13,6 +14,7 @@ class HistoricalSiteGeoJSONSerializer(GeoFeatureModelSerializer):
             'id', 'name', 'event_date', 'location_name', 
             'category', 'event_type', 'significance', 'casualties'
         ]
+
 
 class HistoricalSiteDetailSerializer(serializers.ModelSerializer):
     """Detailed serializer with all fields"""
@@ -35,8 +37,9 @@ class HistoricalSiteDetailSerializer(serializers.ModelSerializer):
     def get_longitude(self, obj):
         return obj.get_longitude()
 
+
 class HistoricalSiteListSerializer(serializers.ModelSerializer):
-    """Simple serializer for list views"""
+    """Simple serializer for list views with images and description"""
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
     
@@ -44,7 +47,8 @@ class HistoricalSiteListSerializer(serializers.ModelSerializer):
         model = HistoricalSite
         fields = [
             'id', 'name', 'event_date', 'location_name',
-            'latitude', 'longitude', 'category', 'event_type'
+            'latitude', 'longitude', 'category', 'event_type',
+            'significance', 'description', 'images', 'casualties'
         ]
     
     def get_latitude(self, obj):
@@ -52,6 +56,7 @@ class HistoricalSiteListSerializer(serializers.ModelSerializer):
     
     def get_longitude(self, obj):
         return obj.get_longitude()
+
     
 class CountyBoundarySerializer(GeoFeatureModelSerializer):
     """

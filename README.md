@@ -192,7 +192,8 @@ docker-compose up -d
 4. Load historical data
 ```bash
 docker-compose exec django python manage.py migrate
-docker-compose exec django python load_historical_sites.py
+docker-compose exec django sh -c "python manage.py load_county_boundaries_from_geojson irish_counties.geojson && python manage.py update_sites_with_images sites_images_descriptions.json"
+docker-compose exec django python manage.py collectstatic --noinput
 ```
 
 5. Access the application
