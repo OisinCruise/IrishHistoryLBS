@@ -3,7 +3,6 @@ networks:
   irish-civil-war-net:
     driver: bridge
 
-
 # ==================== VOLUMES ====================
 volumes:
   postgres_data:
@@ -17,10 +16,8 @@ volumes:
   nginx_logs:
     driver: local
 
-
 # ==================== SERVICES ====================
 services:
-  # ============== PostgreSQL + PostGIS (BUILD FROM LOCAL DOCKERFILE) ==============
   db:
     build:
       context: ./docker/postgres
@@ -55,10 +52,9 @@ services:
     labels:
       - "com.example.description=PostgreSQL with PostGIS for Irish Civil War LBS"
 
-
   # ============== PgAdmin4 ==============
   pgadmin:
-    image: dpage/pgadmin4:latest
+    image: elestio/pgadmin:latest
     container_name: irish-war-pgadmin
     hostname: pgadmin
     environment:
@@ -66,11 +62,10 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_password_change_me}
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
       PGADMIN_CONFIG_COOKIE_DEFAULT_SECURE: 'False'
-      PGADMIN_CONFIG_COOKIE_DEFAULT_SAMESITE: 'Lax'
+      PGADMIN_CONFIG_COOKIE_DEFAULT_SAMESITE: "'Lax'"
     
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
     
     ports:
       - "5050:80"
@@ -84,9 +79,15 @@ services:
     
     restart: unless-stopped
     
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
     labels:
-      - "com.example.description=PgAdmin4 Database Management Interface"
-
+      - "com.example.description=PgAdmin4 Database Management Interface (elestio ARM64-Optimized)"
 
   # ============== Django Application ==============
   django:
@@ -156,7 +157,6 @@ services:
     
     labels:
       - "com.example.description=Django Application Server"
-
 
   # ============== Nginx Reverse Proxy ==============
   nginx:

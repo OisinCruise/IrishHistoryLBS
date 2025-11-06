@@ -5,9 +5,12 @@ from historical_sites.models import HistoricalSite
 
 
 class Command(BaseCommand):
+    """Django command to update historical sites with descriptions and images from JSON"""
+    
     help = 'Update historical sites with descriptions and images from JSON file'
     
     def add_arguments(self, parser):
+        # Optional JSON file path argument with default value
         parser.add_argument(
             'json_file',
             type=str,
@@ -19,6 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         json_file = options['json_file']
         
+        # Validate file exists
         if not os.path.exists(json_file):
             self.stdout.write(
                 self.style.ERROR(f'✗ File not found: {json_file}')
@@ -26,21 +30,23 @@ class Command(BaseCommand):
             return
         
         try:
+            # Load and process JSON data
             with open(json_file, 'r', encoding='utf-8') as f:
                 updates_data = json.load(f)
             
             updated_count = 0
             not_found_count = 0
             
+            # Update each site from JSON data
             for update_item in updates_data:
                 site_name = update_item.get('name')
                 description = update_item.get('description')
                 images = update_item.get('images', [])
                 
                 try:
+                    # Find and update matching site
                     site = HistoricalSite.objects.get(name__iexact=site_name)
                     
-                    # Update description and images
                     if description:
                         site.description = description
                     
@@ -64,6 +70,7 @@ class Command(BaseCommand):
                     )
                     not_found_count += 1
             
+            # Display summary statistics
             self.stdout.write(
                 self.style.SUCCESS(
                     f'\n✓ Update complete!\n'

@@ -6,7 +6,7 @@ from historical_sites.models import CountyBoundary
 
 
 class Command(BaseCommand):
-    help = 'Load Irish county boundaries from GeoJSON with proper coordinate transformation'
+    """Django management command to import Irish county boundaries from GeoJSON"""
     
     def add_arguments(self, parser):
         parser.add_argument('geojson_file', type=str, help='Path to GeoJSON file')
@@ -14,12 +14,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         geojson_file = options['geojson_file']
         
+        # Validate file existence
         if not os.path.exists(geojson_file):
             self.stdout.write(self.style.ERROR(f'✗ File not found: {geojson_file}'))
             return
         
         self.stdout.write(f"Loading county boundaries from {geojson_file}...")
         
+        # Parse GeoJSON file
         try:
             with open(geojson_file, 'r') as f:
                 data = json.load(f)
@@ -30,6 +32,7 @@ class Command(BaseCommand):
         features = data.get('features', [])
         self.stdout.write(f"Found {len(features)} features")
         
+        # Track processing statistics
         processed_counties = set()
         created_count = 0
         updated_count = 0
@@ -44,7 +47,7 @@ class Command(BaseCommand):
                     skipped_count += 1
                     continue
                 
-                # Extract county name
+                # Extract and normalize county name
                 county_name = (props.get('COUNTY') or props.get('county') or 
                               props.get('NAME') or props.get('name'))
                 
@@ -54,7 +57,7 @@ class Command(BaseCommand):
                 
                 county_name = county_name.strip().upper()
                 
-                # Skip duplicates in this load
+                # Prevent duplicate processing
                 if county_name in processed_counties:
                     self.stdout.write(self.style.WARNING(f'⊘ Duplicate in file: {county_name}'))
                     skipped_count += 1
@@ -62,21 +65,14 @@ class Command(BaseCommand):
                 
                 processed_counties.add(county_name)
                 
-                # Load geometry from GeoJSON - DO NOT set SRID yet (to avoid conflict)
+                # Handle coordinate transformation
                 geom_geojson = json.dumps(geom)
                 
                 try:
-                    # Create geometry WITHOUT SRID first
                     geometry = GEOSGeometry(geom_geojson)
-                    
-                    # Strip any existing SRID that came from GeoJSON
                     geometry.srid = None
-                    
-                    # NOW set SRID to EPSG:2157 (Irish Grid)
-                    geometry.srid = 2157
-                    
-                    # Transform from EPSG:2157 to EPSG:4326 (WGS84)
-                    geometry.transform(4326)
+                    geometry.srid = 2157  # Irish Grid
+                    geometry.transform(4326)  # Transform to WGS84
                     
                     self.stdout.write(self.style.SUCCESS(
                         f'⚠ Transformed {county_name} from EPSG:2157 to EPSG:4326'
@@ -89,13 +85,12 @@ class Command(BaseCommand):
                     skipped_count += 1
                     continue
                 
-                # Validate geometry
+                # Validate geometry and location
                 if not geometry.valid:
                     self.stdout.write(self.style.ERROR(f'✗ Invalid geometry for {county_name}'))
                     skipped_count += 1
                     continue
                 
-                # Validate final coordinates are in Ireland range (WGS84)
                 centroid = geometry.centroid
                 if not (-11 < centroid.x < -5 and 51 < centroid.y < 56):
                     self.stdout.write(self.style.ERROR(
@@ -104,7 +99,7 @@ class Command(BaseCommand):
                     skipped_count += 1
                     continue
                 
-                # Create or update the county
+                # Persist to database
                 county, is_created = CountyBoundary.objects.update_or_create(
                     name=county_name,
                     defaults={'geometry': geometry}
@@ -127,7 +122,7 @@ class Command(BaseCommand):
                 traceback.print_exc()
                 skipped_count += 1
         
-        # Summary
+        # Output processing summary
         self.stdout.write("\n" + "="*60)
         self.stdout.write(self.style.SUCCESS(
             f'✓ Successfully processed {created_count + updated_count} counties!'
@@ -137,7 +132,7 @@ class Command(BaseCommand):
         self.stdout.write(f'  • Skipped: {skipped_count}')
         self.stdout.write("="*60)
         
-        # Verify samples
+        # Verify sample results
         if created_count + updated_count > 0:
             self.stdout.write("\nVerification (first 3 counties):")
             for county in CountyBoundary.objects.all()[:3]:

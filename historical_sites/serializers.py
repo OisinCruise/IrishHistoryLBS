@@ -5,7 +5,7 @@ from .models import CountyBoundary
 
 
 class HistoricalSiteGeoJSONSerializer(GeoFeatureModelSerializer):
-    """Serializer for GeoJSON format"""
+    """Converts historical site data to GeoJSON format for map display"""
     
     class Meta:
         model = HistoricalSite
@@ -17,7 +17,7 @@ class HistoricalSiteGeoJSONSerializer(GeoFeatureModelSerializer):
 
 
 class HistoricalSiteDetailSerializer(serializers.ModelSerializer):
-    """Detailed serializer with all fields"""
+    """Provides complete historical site details including computed coordinates"""
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
     
@@ -32,14 +32,16 @@ class HistoricalSiteDetailSerializer(serializers.ModelSerializer):
         ]
     
     def get_latitude(self, obj):
+        """Extracts latitude from location geometry"""
         return obj.get_latitude()
     
     def get_longitude(self, obj):
+        """Extracts longitude from location geometry"""
         return obj.get_longitude()
 
 
 class HistoricalSiteListSerializer(serializers.ModelSerializer):
-    """Simple serializer for list views with images and description"""
+    """Simplified site data for list views with essential fields"""
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
     
@@ -52,17 +54,16 @@ class HistoricalSiteListSerializer(serializers.ModelSerializer):
         ]
     
     def get_latitude(self, obj):
+        """Extracts latitude from location geometry"""
         return obj.get_latitude()
     
     def get_longitude(self, obj):
+        """Extracts longitude from location geometry"""
         return obj.get_longitude()
 
     
 class CountyBoundarySerializer(GeoFeatureModelSerializer):
-    """
-    Serializer for county boundaries as GeoJSON features.
-    Returns geometry in GeoJSON format compatible with Leaflet.
-    """
+    """Serializes county boundary data to GeoJSON format for map overlay"""
     class Meta:
         model = CountyBoundary
         fields = ('id', 'name')

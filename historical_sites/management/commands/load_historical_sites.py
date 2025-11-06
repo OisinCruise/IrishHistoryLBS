@@ -6,9 +6,12 @@ from django.contrib.gis.geos import Point
 from historical_sites.models import HistoricalSite
 
 class Command(BaseCommand):
+    """Django command to load historical sites from JSON file"""
+    
     help = 'Load Irish Civil War historical sites from JSON file'
     
     def add_arguments(self, parser):
+        # Optional argument for custom JSON file path
         parser.add_argument(
             'json_file',
             type=str,
@@ -34,13 +37,13 @@ class Command(BaseCommand):
             updated_count = 0
             
             for site_data in sites_data:
-                # Parse date
+                # Convert string date to Python date object
                 event_date = datetime.strptime(site_data['date'], '%Y-%m-%d').date()
                 
-                # Create Point geometry (longitude, latitude)
+                # Create geographic point from coordinates
                 location = Point(site_data['longitude'], site_data['latitude'])
                 
-                # Map category from string to database value
+                # Map historical period categories to database values
                 category_map = {
                     'Easter Rising': 'EASTER_RISING',
                     'War of Independence': 'WAR_INDEPENDENCE',
@@ -51,7 +54,7 @@ class Command(BaseCommand):
                 }
                 category = category_map.get(site_data['category'], 'CIVIL_WAR')
                 
-                # Get or create the site
+                # Create or update site in database
                 site, created = HistoricalSite.objects.update_or_create(
                     name=site_data['event'],
                     defaults={
@@ -64,6 +67,7 @@ class Command(BaseCommand):
                     }
                 )
                 
+                # Log operation status
                 if created:
                     created_count += 1
                     self.stdout.write(
@@ -75,6 +79,7 @@ class Command(BaseCommand):
                         self.style.WARNING(f'⟳ Updated: {site.name}')
                     )
             
+            # Display final statistics
             self.stdout.write(
                 self.style.SUCCESS(
                     f'\n✓ Data loading complete!\n'

@@ -1,7 +1,12 @@
-FROM postgis/postgis:14-3.3-alpine
+FROM --platform=linux/arm64/v8 postgres:14-bullseye
 
-COPY init.sql /docker-entrypoint-initdb.d/
+# Install PostGIS and dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-14-postgis-3 \
+    postgresql-14-postgis-3-scripts \
+    && rm -rf /var/lib/apt/lists/*
 
-LABEL maintainer="Oisin Cruise <oisincruise@gmail.com>" \
-      description="PostgreSQL 14 with PostGIS 3.3 for Irish Civil War LBS" \
-      version="1.0.0"
+# Enable PostGIS extension
+RUN echo "CREATE EXTENSION IF NOT EXISTS postgis;" > /docker-entrypoint-initdb.d/postgis.sql
+
+EXPOSE 5432

@@ -3,7 +3,10 @@ from django.utils import timezone
 
 
 class HistoricalSite(models.Model):
-    """Model representing a historical site related to Irish Civil War"""
+    """
+    Model representing historical sites related to the Irish Civil War period (1916-1923).
+    Stores geographical, historical, and multimedia information about significant locations.
+    """
     
     CATEGORY_CHOICES = [
         ('EASTER_RISING', 'Easter Rising (1916)'),
@@ -13,30 +16,30 @@ class HistoricalSite(models.Model):
         ('AFTERMATH', 'Aftermath & Establishment (1923+)'),
     ]
     
-    # Basic information
+    # Basic site information fields
     name = models.CharField(max_length=255, unique=True)
     event_date = models.DateField()
     location_name = models.CharField(max_length=500)
     
-    # Spatial data (Point geometry)
+    # Geographical coordinates stored as PostGIS Point
     location = models.PointField(srid=4326, help_text="WGS84 coordinates (Longitude, Latitude)")
     
-    # Historical context
+    # Historical classification and context
     significance = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     event_type = models.CharField(max_length=100, help_text="e.g., Battle, Ambush, Execution, Political")
     
-    # Additional details
+    # Detailed historical information
     description = models.TextField(blank=True, null=True)
     casualties = models.IntegerField(null=True, blank=True)
     commanders = models.JSONField(blank=True, null=True, default=list)
     
-    # Media and resources
+    # Associated media and reference materials
     images = models.JSONField(blank=True, null=True, default=list)
     audio_url = models.URLField(blank=True, null=True)
     sources = models.JSONField(blank=True, null=True, default=list)
     
-    # Metadata
+    # Timestamp fields for record keeping
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -53,17 +56,21 @@ class HistoricalSite(models.Model):
         return f"{self.name} ({self.event_date.year})"
     
     def get_latitude(self):
-        """Return latitude coordinate"""
+        """Returns the latitude coordinate of the site location"""
         return self.location.y
     
     def get_longitude(self):
-        """Return longitude coordinate"""
+        """Returns the longitude coordinate of the site location"""
         return self.location.x
     
+
 class CountyBoundary(models.Model):
+    """
+    Model representing Irish county boundaries using PostGIS geometry.
+    Used for geographical context and spatial queries.
+    """
     name = models.CharField(max_length=100, unique=True)
-    # accept both Polygon and MultiPolygon
-    geometry = models.GeometryField(srid=4326)  
+    geometry = models.GeometryField(srid=4326)  # Accepts both Polygon and MultiPolygon
     
     class Meta:
         app_label = 'historical_sites'
