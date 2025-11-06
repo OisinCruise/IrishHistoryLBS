@@ -6,12 +6,62 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row g-0" style="min-height: calc(100vh - 120px);">
-        <!-- Sidebar with Filters -->
-        <div class="col-lg-3 col-md-4 bg-light py-4 sidebar border-end">
-            <div class="px-4">
+        <!-- Sidebar with Filters - Scrollable -->
+        <div class="col-lg-3 col-md-4 bg-light sidebar border-end">
+            <div class="px-4 py-4">
                 <h4 class="fw-bold text-dark mb-4">
                     <i class="fas fa-sliders-h me-2"></i>Map Controls
                 </h4>
+                
+                <!-- County Filter Card -->
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0 fw-bold">
+                            <i class="fas fa-map me-2"></i>Filter by County
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <label for="county-select" class="form-label small fw-bold">Select County</label>
+                        <select id="county-select" class="form-select form-select-sm mb-3">
+                            <option value="">-- All Counties --</option>
+                            <option value="antrim">Antrim</option>
+                            <option value="armagh">Armagh</option>
+                            <option value="carlow">Carlow</option>
+                            <option value="cavan">Cavan</option>
+                            <option value="clare">Clare</option>
+                            <option value="cork">Cork</option>
+                            <option value="derry">Derry</option>
+                            <option value="donegal">Donegal</option>
+                            <option value="down">Down</option>
+                            <option value="dublin">Dublin</option>
+                            <option value="fermanagh">Fermanagh</option>
+                            <option value="galway">Galway</option>
+                            <option value="kerry">Kerry</option>
+                            <option value="kildare">Kildare</option>
+                            <option value="kilkenny">Kilkenny</option>
+                            <option value="laois">Laois</option>
+                            <option value="leitrim">Leitrim</option>
+                            <option value="limerick">Limerick</option>
+                            <option value="longford">Longford</option>
+                            <option value="louth">Louth</option>
+                            <option value="mayo">Mayo</option>
+                            <option value="meath">Meath</option>
+                            <option value="monaghan">Monaghan</option>
+                            <option value="offaly">Offaly</option>
+                            <option value="roscommon">Roscommon</option>
+                            <option value="sligo">Sligo</option>
+                            <option value="tipperary">Tipperary</option>
+                            <option value="tyrone">Tyrone</option>
+                            <option value="waterford">Waterford</option>
+                            <option value="westmeath">Westmeath</option>
+                            <option value="wexford">Wexford</option>
+                            <option value="wicklow">Wicklow</option>
+                        </select>
+                        <button class="btn btn-sm btn-success w-100" id="filter-county">
+                            <i class="fas fa-search me-1"></i>Filter by County
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- Timeline Filter Card -->
                 <div class="card mb-3 border-0 shadow-sm">
@@ -94,7 +144,7 @@
                 </div>
                 
                 <!-- Statistics Card -->
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-success text-white">
                         <h6 class="mb-0 fw-bold">
                             <i class="fas fa-chart-bar me-2"></i>Statistics
@@ -119,8 +169,8 @@
         </div>
         
         <!-- Map Container -->
-        <div class="col-lg-9 col-md-8 position-relative">
-            <div id="map" style="height: calc(100vh - 120px); width: 100%;" class="rounded-start"></div>
+        <div class="col-lg-9 col-md-8 position-relative" style="padding: 0;">
+            <div id="map" style="height: calc(100vh - 120px); width: 100%;"></div>
             <div class="map-legend position-absolute bottom-0 start-0 m-3 bg-white rounded shadow-sm p-3" style="z-index: 401;">
                 <h6 class="fw-bold mb-2">Legend</h6>
                 <small>
@@ -144,6 +194,26 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="siteModalBody">
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-info" id="show-related-sites">
+                    <i class="fas fa-link me-1"></i>Show Related Sites
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Sites Modal -->
+<div class="modal fade" id="relatedSitesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-info text-white border-0">
+                <h5 class="modal-title fw-bold" id="relatedSitesTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="relatedSitesBody">
             </div>
             <div class="modal-footer border-top">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

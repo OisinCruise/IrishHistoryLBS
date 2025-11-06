@@ -7,8 +7,9 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.geos import Polygon
 from django_filters import rest_framework as filters
-from .models import HistoricalSite
+from .models import CountyBoundary, HistoricalSite
 from .serializers import (
+    CountyBoundarySerializer,
     HistoricalSiteGeoJSONSerializer,
     HistoricalSiteDetailSerializer,
     HistoricalSiteListSerializer
@@ -16,22 +17,39 @@ from .serializers import (
 
 
 class HistoricalSiteFilter(filters.FilterSet):
+    """Filter set for Historical Sites with spatial queries"""
     event_date_from = filters.DateFilter(field_name='event_date', lookup_expr='gte')
     event_date_to = filters.DateFilter(field_name='event_date', lookup_expr='lte')
+    county = filters.CharFilter(method='filter_by_county')
     
     class Meta:
         model = HistoricalSite
-        fields = ['category', 'event_type', 'event_date_from', 'event_date_to']
+        fields = ['category', 'event_type', 'event_date_from', 'event_date_to', 'county']
+    
+    def filter_by_county(self, queryset, name, value):
+        """Filter sites by county using spatial point-in-polygon queries"""
+        if not value:
+            return queryset
+        
+        try:
+            # Get county boundary by name (case-insensitive)
+            county_boundary = CountyBoundary.objects.get(name__iexact=value)
+            # Use ST_Within to find all sites whose location is within the county polygon
+            return queryset.filter(location__within=county_boundary.geometry)
+        except CountyBoundary.DoesNotExist:
+            # County not found, return empty queryset
+            return queryset.none()
 
 
 class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
-    """API ViewSet for Historical Sites"""
+    """API ViewSet for Historical Sites with spatial filtering"""
     queryset = HistoricalSite.objects.all().order_by('event_date')
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = HistoricalSiteFilter
     pagination_class = None
     
     def get_serializer_class(self):
+        """Return appropriate serializer based on format"""
         if self.format_kwarg == 'geojson':
             return HistoricalSiteGeoJSONSerializer
         if self.action == 'retrieve':
@@ -40,59 +58,53 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['post', 'get'])
     def nearby(self, request):
-        """Find sites within a specified radius"""
+        """Find sites within a specified radius of a point (proximity search)"""
         try:
-            # Handle GET requests
+            # Handle both POST and GET requests
             if request.method == 'GET':
                 latitude = float(request.query_params.get('lat'))
                 longitude = float(request.query_params.get('lng'))
                 radius_km = float(request.query_params.get('radius_km', 50))
-            # Handle POST requests 
             else:
                 latitude = float(request.data.get('lat'))
                 longitude = float(request.data.get('lng'))
                 radius_km = float(request.data.get('radius_km', 50))
             
-            # Validate inputs
+            # Validate coordinates
             if not (-90 <= latitude <= 90) or not (-180 <= longitude <= 180):
                 return Response(
-                    {'error': 'Invalid coordinates. Latitude must be -90 to 90, Longitude -180 to 180'},
+                    {'error': 'Invalid coordinates'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
+            # Validate radius
             if radius_km <= 0 or radius_km > 500:
                 return Response(
-                    {'error': 'Invalid radius. Must be between 0 and 500 km'},
+                    {'error': 'Invalid radius (must be 0-500 km)'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            # Create point and perform spatial query
+            # Create a point from coordinates (longitude, latitude for GIS)
             user_point = Point(longitude, latitude, srid=4326)
             
+            # Find sites within the radius using distance lookup
             nearby_sites = HistoricalSite.objects.filter(
                 location__distance_lte=(user_point, D(km=radius_km))
             ).annotate(
                 distance=Distance('location', user_point)
             ).order_by('distance')
             
-            # Serialize results
             serializer = self.get_serializer(nearby_sites, many=True)
             
             return Response({
                 'count': nearby_sites.count(),
                 'radius_km': radius_km,
-                'center': {
-                    'latitude': latitude,
-                    'longitude': longitude
-                },
+                'center': {'latitude': latitude, 'longitude': longitude},
                 'sites': serializer.data
             })
             
-        except (TypeError, ValueError, AttributeError) as e:
-            return Response(
-                {'error': f'Invalid parameters: {str(e)}. Required: lat, lng, radius_km'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        except (TypeError, ValueError) as e:
+            return Response({'error': f'Invalid parameter: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def timeline(self, request):
@@ -110,10 +122,7 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response({
             'count': queryset.count(),
-            'date_range': {
-                'start': start_date or 'N/A',
-                'end': end_date or 'N/A'
-            },
+            'date_range': {'start': start_date, 'end': end_date},
             'sites': serializer.data
         })
 
@@ -131,41 +140,59 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['post'])
     def in_polygon(self, request):
-        """Find sites within a polygon (e.g., county boundary)"""
-        polygon_coords = request.data.get('polygon')  # [[lat1,lng1], [lat2,lng2], ...]
+        """Find sites within a polygon"""
+        polygon_coords = request.data.get('polygon')  
         try:
-            # Convert to GIS polygon (exterior ring only)
+            # Convert lat,lng pairs to lng,lat for geometry
             rings = [(lng, lat) for lat, lng in polygon_coords]
             polygon = Polygon(rings)
-            sites = HistoricalSite.objects.filter(
-                location__intersects=polygon
-            )
+            sites = HistoricalSite.objects.filter(location__within=polygon)
             return Response({
                 'count': sites.count(),
                 'sites': self.get_serializer(sites, many=True).data
             })
         except (ValueError, IndexError) as e:
-            return Response({'error': str(e)}, status=400)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def buffer_zone(self, request):
-        """Find sites within buffer of another site"""
+        """Find sites within buffer zone of another site"""
         site_id = request.query_params.get('site_id')
-        buffer_km = float(request.query_params.get('buffer_km', 10))
+        buffer_km = float(request.query_params.get('buffer_km', 20))
+        
+        if buffer_km <= 0 or buffer_km > 100:
+            return Response(
+                {'error': 'Buffer radius must be 0-100 km'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         try:
             center_site = HistoricalSite.objects.get(id=site_id)
-            buffer_zone = center_site.location.buffer(buffer_km / 111.0)
+            # Convert km to degrees (approximately)
+            buffer_degrees = buffer_km / 111.0
+            buffer_zone = center_site.location.buffer(buffer_degrees)
+            
+            # Find sites within the buffer zone
             nearby = HistoricalSite.objects.filter(
                 location__within=buffer_zone
-            ).exclude(id=site_id)
+            ).exclude(id=site_id).order_by('event_date')
+            
+            serializer = self.get_serializer(nearby, many=True)
+            
             return Response({
                 'count': nearby.count(),
                 'center_site': center_site.name,
+                'center_location': {
+                    'latitude': center_site.get_latitude(),
+                    'longitude': center_site.get_longitude()
+                },
                 'buffer_km': buffer_km,
-                'sites': self.get_serializer(nearby, many=True).data
+                'sites': serializer.data
             })
         except HistoricalSite.DoesNotExist:
-            return Response({'error': 'Site not found'}, status=404)
+            return Response({'error': 'Site not found'}, status=status.HTTP_404_NOT_FOUND)
+        except (TypeError, ValueError) as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MapView(TemplateView):
@@ -175,4 +202,19 @@ class MapView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_sites'] = HistoricalSite.objects.count()
+        context['total_counties'] = CountyBoundary.objects.count()
         return context
+
+
+class CountyBoundaryViewSet(viewsets.ReadOnlyModelViewSet):
+    """API endpoint for county boundary polygons (GeoJSON format)"""
+    queryset = CountyBoundary.objects.all()
+    serializer_class = CountyBoundarySerializer
+    pagination_class = None
+    
+    @action(detail=False, methods=['get'])
+    def geojson(self, request):
+        """Return all county boundaries as GeoJSON FeatureCollection"""
+        from django.contrib.gis.serializers import geojson
+        counties = self.get_queryset()
+        return Response(geojson.serialize('geojson', counties, geometry_field='geometry'))

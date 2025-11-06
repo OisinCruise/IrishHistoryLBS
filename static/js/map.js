@@ -5,6 +5,10 @@ let markerLayer;
 let searchMode = false;
 let searchCircle = null;
 let searchMarker = null;
+let currentSiteId = null;
+let countyBoundaryLayer = null;
+let countyPolygons = {};
+
 
 function showAlert(message, type = 'info') {
     const colors = {
@@ -46,6 +50,7 @@ function setMapCursor(mode) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
+    loadCountyBoundaries();
     loadSites();
     setupEventListeners();
 });
@@ -75,8 +80,6 @@ function initializeMap() {
             const lat = e.latlng.lat.toFixed(6);
             const lng = e.latlng.lng.toFixed(6);
             showAlert(`Coordinates: ${lat}, ${lng}`, 'info');
-
-            // Add visible marker for feedback
             const marker = L.circleMarker([lat, lng], {
                 radius: 9,
                 color: "#3498db",
@@ -89,7 +92,39 @@ function initializeMap() {
     });
 }
 
-// LOAD SITES FROM API
+// Fetch and display county boundaries as polygons
+function loadCountyBoundaries() {
+    fetch('/api/county-boundaries/')
+        .then(r => r.json())
+        .then(data => {
+            console.log(`Loaded ${data.length} county boundaries`);
+            data.forEach(county => {
+                try {
+                    const geojson = JSON.parse(county.geometry);
+                    const layer = L.geoJSON(geojson, {
+                        style: {
+                            color: '#3498DB',
+                            weight: 2,
+                            opacity: 0.4,
+                            fillOpacity: 0.1
+                        },
+                        onEachFeature: (feature, layer) => {
+                            layer.bindPopup(`<strong>${county.name}</strong>`);
+                        }
+                    }).addTo(map);
+                    countyPolygons[county.name.toLowerCase()] = layer;
+                } catch (e) {
+                    console.error(`Error loading geometry for ${county.name}:`, e);
+                }
+            });
+            showAlert('County boundaries loaded', 'success');
+        })
+        .catch(error => {
+            console.error('Error loading county boundaries:', error);
+            showAlert('Error loading county boundaries', 'warning');
+        });
+}
+
 async function loadSites() {
     try {
         const apiUrl = window.DJANGO_CONTEXT.apiBaseUrl;
@@ -112,7 +147,6 @@ async function loadSites() {
     }
 }
 
-// DISPLAY SITES ON MAP
 function displaySites(sites) {
     markerLayer.clearLayers();
     markers = {};
@@ -137,12 +171,12 @@ function displaySites(sites) {
         markers[site.id] = marker;
         
         marker.on('click', function() {
+            currentSiteId = site.id;
             showSiteModal(site);
         });
     });
 }
 
-// Get category color
 function getCategoryColor(category) {
     const colors = {
         'EASTER_RISING': '#E74C3C',
@@ -154,7 +188,6 @@ function getCategoryColor(category) {
     return colors[category] || '#95A5A6';
 }
 
-// Create popup content
 function createPopupContent(site) {
     const date = new Date(site.event_date);
     const significance = site.significance || 'No description available';
@@ -171,7 +204,6 @@ function createPopupContent(site) {
     `;
 }
 
-// MODALS & POPUPS
 function showSiteModal(site) {
     const date = new Date(site.event_date);
     const modal = document.getElementById('siteModal');
@@ -200,8 +232,120 @@ function showSiteModal(site) {
     new bootstrap.Modal(modal).show();
 }
 
-// EVENT LISTENERS
+async function showRelatedSites() {
+    if (!currentSiteId) return;
+    
+    try {
+        const bufferKm = 20;
+        const response = await fetch(`/api/sites/buffer_zone/?site_id=${currentSiteId}&buffer_km=${bufferKm}`);
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const relatedSites = data.sites;
+        
+        const modal = document.getElementById('relatedSitesModal');
+        document.getElementById('relatedSitesTitle').textContent = `Related Sites within ${bufferKm}km`;
+        
+        let html = `<p class="text-muted">Found <strong>${relatedSites.length}</strong> sites within ${bufferKm}km</p>`;
+        
+        if (relatedSites.length > 0) {
+            html += '<div class="list-group">';
+            relatedSites.forEach(site => {
+                const date = new Date(site.event_date);
+                html += `
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">${site.name}</h6>
+                                <p class="mb-1"><small><strong>Date:</strong> ${date.toLocaleDateString()}</small></p>
+                                <p class="mb-0"><small><strong>Type:</strong> ${site.event_type}</small></p>
+                            </div>
+                            <span class="badge" style="background-color: ${getCategoryColor(site.category)};">${site.category}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        } else {
+            html += '<p class="text-muted">No related sites found within this buffer zone.</p>';
+        }
+        
+        document.getElementById('relatedSitesBody').innerHTML = html;
+        
+        // Show buffer zone on map
+        const currentSite = allSites.find(s => s.id === currentSiteId);
+        if (currentSite) {
+            if (searchCircle) map.removeLayer(searchCircle);
+            searchCircle = L.circle([currentSite.latitude, currentSite.longitude], {
+                radius: bufferKm * 1000,
+                color: '#17a2b8',
+                fillColor: '#17a2b8',
+                fillOpacity: 0.1,
+                weight: 2,
+                dashArray: '5, 5'
+            }).addTo(map);
+        }
+        
+        new bootstrap.Modal(modal).show();
+        showAlert(`Showing ${relatedSites.length} related sites`, 'info');
+        
+    } catch (error) {
+        console.error('Error loading related sites:', error);
+        showAlert('Error loading related sites: ' + error.message, 'danger');
+    }
+}
+
+// County filter using spatial point-in-polygon queries
+async function filterByCounty() {
+    const countySelect = document.getElementById('county-select');
+    const selected = countySelect ? countySelect.value : '';
+    
+    // Show/hide polygons
+    Object.entries(countyPolygons).forEach(([name, layer]) => {
+        if (!selected || name === selected) {
+            layer.setStyle({fillOpacity: 0.2});
+        } else {
+            layer.setStyle({fillOpacity: 0.05});
+        }
+    });
+    
+    if (!selected) {
+        displaySites(allSites);
+        updateStatistics();
+        showAlert('Showing all sites', 'info');
+        return;
+    }
+    
+    // Filter sites using spatial query (ST_Within)
+    try {
+        const params = new URLSearchParams({county: selected});
+        const response = await fetch(`/api/sites/?${params}`);
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        displaySites(data);
+        updateStatistics();
+        showAlert(`Showing ${data.length} sites in ${selected}`, 'success');
+        
+    } catch (error) {
+        console.error('Error filtering by county:', error);
+        showAlert('Error filtering by county: ' + error.message, 'danger');
+    }
+}
+
 function setupEventListeners() {
+    // County filter
+    const countyBtn = document.getElementById('filter-county');
+    if (countyBtn) {
+        countyBtn.addEventListener('click', filterByCounty);
+    }
+    
     // Category filters
     const categoryBtn = document.getElementById('apply-categories');
     if (categoryBtn) {
@@ -221,7 +365,7 @@ function setupEventListeners() {
     }
     
     // Show all sites button
-    const showAllBtn = document.getElementById('show-all-sites');
+    const showAllBtn = document.getElementById('reset-search');
     if (showAllBtn) {
         showAllBtn.addEventListener('click', function() {
             displaySites(allSites);
@@ -229,15 +373,34 @@ function setupEventListeners() {
             if (searchMarker) map.removeLayer(searchMarker);
             searchCircle = null;
             searchMarker = null;
+            const countySelect = document.getElementById('county-select');
+            if (countySelect) countySelect.value = '';
+            // Reset county polygon opacity
+            Object.values(countyPolygons).forEach(layer => {
+                layer.setStyle({fillOpacity: 0.1});
+            });
             cancelSearchMode();
+            updateStatistics();
         });
+    }
+    
+    // Related sites button
+    const relatedBtn = document.getElementById('show-related-sites');
+    if (relatedBtn) {
+        relatedBtn.addEventListener('click', showRelatedSites);
     }
 }
 
-// FILTERING FUNCTIONS
 function filterByCategory() {
     const selected = Array.from(document.querySelectorAll('.category-filter:checked'))
         .map(el => el.value);
+    
+    if (selected.length === 0) {
+        displaySites(allSites);
+        updateStatistics();
+        showAlert('Showing all sites', 'info');
+        return;
+    }
     
     const filtered = allSites.filter(site => selected.includes(site.category));
     displaySites(filtered);
@@ -272,10 +435,11 @@ function searchNearby() {
         cancelSearchMode();
     }
 }
+
 function cancelSearchMode() {
     searchMode = false;
     const btn = document.getElementById('search-nearby');
-    btn.textContent = 'Search Nearby';
+    btn.textContent = 'Start Search';
     btn.classList.remove('btn-danger');
     btn.classList.add('btn-primary');
     setMapCursor('pointer');
@@ -288,6 +452,7 @@ function cancelSearchMode() {
         searchMarker = null;
     }
     displaySites(allSites);
+    updateStatistics();
     showAlert('Search cancelled', 'secondary');
 }
 
@@ -313,6 +478,7 @@ async function performProximitySearch(lat, lng, radiusKm) {
         const data = await response.json();
         
         displaySites(data.sites);
+        updateStatistics();
         
         if (searchCircle) {
             map.removeLayer(searchCircle);
@@ -335,13 +501,15 @@ async function performProximitySearch(lat, lng, radiusKm) {
                 iconSize: [20, 20]
             })
         }).addTo(map);
+        
         searchMode = false;
         const btn = document.getElementById('search-nearby');
-        btn.textContent = 'Search Nearby';
+        btn.textContent = 'Start Search';
         btn.classList.remove('btn-danger');
         btn.classList.add('btn-primary');
-        const mapEl = document.getElementById('map');
-        if (mapEl) mapEl.style.cursor = 'default';
+        setMapCursor('pointer');
+        
+        showAlert(`Found ${data.sites.length} sites within ${radiusKm}km`, 'success');
         
     } catch (error) {
         console.error('Proximity search error:', error);
@@ -350,7 +518,6 @@ async function performProximitySearch(lat, lng, radiusKm) {
     }
 }
 
-// STATISTICS
 function updateStatistics() {
     const totalEl = document.getElementById('stat-total');
     const visibleEl = document.getElementById('stat-visible');

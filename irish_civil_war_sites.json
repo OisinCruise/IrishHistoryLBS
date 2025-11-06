@@ -1,0 +1,222 @@
+[
+  {
+    "date": "1916-04-24",
+    "event": "GPO Occupation - Easter Rising",
+    "location": "General Post Office, O'Connell Street, Dublin",
+    "latitude": 53.3493,
+    "longitude": -6.2605,
+    "significance": "HQ of Easter Rising - precursor to War of Independence",
+    "category": "Easter Rising",
+    "type": "Occupation"
+  },
+  {
+    "date": "1919-01-21",
+    "event": "Soloheadbeg Ambush",
+    "location": "Soloheadbeg, County Tipperary",
+    "latitude": 52.5667,
+    "longitude": -7.8833,
+    "significance": "First shots of War of Independence - IRA ambushed RIC escort",
+    "category": "War of Independence",
+    "type": "Ambush"
+  },
+  {
+    "date": "1920-11-21",
+    "event": "Bloody Sunday - Croke Park",
+    "location": "Croke Park, Dublin",
+    "latitude": 53.3606,
+    "longitude": -6.2513,
+    "significance": "British forces killed 14 civilians at Gaelic football match",
+    "category": "War of Independence",
+    "type": "Massacre"
+  },
+  {
+    "date": "1920-11-28",
+    "event": "Kilmichael Ambush",
+    "location": "Kilmichael, County Cork",
+    "latitude": 51.8167,
+    "longitude": -9.1333,
+    "significance": "IRA flying column killed 17 Auxiliaries - pivotal victory",
+    "category": "War of Independence",
+    "type": "Ambush"
+  },
+  {
+    "date": "1921-12-06",
+    "event": "Anglo-Irish Treaty Signing",
+    "location": "10 Downing Street, London & Mansion House Dublin",
+    "latitude": 53.3439,
+    "longitude": -6.2603,
+    "significance": "Treaty signed ending War of Independence, leading to Civil War split",
+    "category": "Treaty Period",
+    "type": "Political"
+  },
+  {
+    "date": "1922-01-07",
+    "event": "Treaty Ratification",
+    "location": "Mansion House, Dublin",
+    "latitude": 53.3421,
+    "longitude": -6.2586,
+    "significance": "Dáil narrowly approved Treaty (64-57) - led to IRA split",
+    "category": "Treaty Period",
+    "type": "Political"
+  },
+  {
+    "date": "1922-04-14",
+    "event": "Four Courts Occupation",
+    "location": "Four Courts, Inns Quay, Dublin",
+    "latitude": 53.3468,
+    "longitude": -6.2747,
+    "significance": "Anti-Treaty IRA seized building as HQ - precipitated Civil War",
+    "category": "Civil War",
+    "type": "Occupation"
+  },
+  {
+    "date": "1922-06-28",
+    "event": "Bombardment of Four Courts - Civil War Begins",
+    "location": "Four Courts, Dublin",
+    "latitude": 53.3468,
+    "longitude": -6.2747,
+    "significance": "Provisional Government shelled garrison - Public Record Office destroyed",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-06-28",
+    "event": "Battle of Dublin Begins",
+    "location": "O'Connell Street, Dublin",
+    "latitude": 53.3498,
+    "longitude": -6.2603,
+    "significance": "Urban fighting - Cathal Brugha killed",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-06-28",
+    "event": "Battle of Drogheda",
+    "location": "Millmount Fort, Drogheda",
+    "latitude": 53.7175,
+    "longitude": -6.3528,
+    "significance": "Anti-Treaty seized town, later shelled by Free State",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-07-11",
+    "event": "Battle of Limerick",
+    "location": "Limerick City (King John's Castle)",
+    "latitude": 52.6658,
+    "longitude": -8.6267,
+    "significance": "Free State captured city with artillery",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-07-19",
+    "event": "Fall of Waterford",
+    "location": "Waterford City",
+    "latitude": 52.2593,
+    "longitude": -7.1101,
+    "significance": "Free State amphibious assault - Republicans evacuated",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-07-23",
+    "event": "Battle of Kilmallock",
+    "location": "Kilmallock, County Limerick",
+    "latitude": 52.4,
+    "longitude": -8.5667,
+    "significance": "Free State took town - end of major conventional fighting",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-08-02",
+    "event": "Fenit Naval Landing",
+    "location": "Fenit Pier, County Kerry",
+    "latitude": 52.2764,
+    "longitude": -9.8628,
+    "significance": "800 Free State troops landed - outflanked Munster Republic",
+    "category": "Civil War",
+    "type": "Landing"
+  },
+  {
+    "date": "1922-08-05",
+    "event": "Battle of Killmallock (Final)",
+    "location": "Kilmallock, County Limerick",
+    "latitude": 52.4,
+    "longitude": -8.5667,
+    "significance": "2,000 Free State under Eoin O'Duffy - marked conventional war end",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-08-08",
+    "event": "Cork Landings",
+    "location": "Passage West, County Cork",
+    "latitude": 51.8719,
+    "longitude": -8.3397,
+    "significance": "Seaborne invasions - 16 killed at Rochestown",
+    "category": "Civil War",
+    "type": "Battle"
+  },
+  {
+    "date": "1922-08-10",
+    "event": "Fall of Cork City",
+    "location": "Cork City",
+    "latitude": 51.8985,
+    "longitude": -8.4756,
+    "significance": "Republicans evacuated - ended Munster Republic",
+    "category": "Civil War",
+    "type": "Surrender"
+  },
+  {
+    "date": "1922-08-22",
+    "event": "Death of Michael Collins",
+    "location": "Béal na Bláth, County Cork",
+    "latitude": 51.8333,
+    "longitude": -8.8667,
+    "significance": "Collins killed in Republican ambush - major turning point",
+    "category": "Civil War",
+    "type": "Ambush"
+  },
+  {
+    "date": "1922-11-17",
+    "event": "First Civil War Executions",
+    "location": "Kilmainham Gaol, Dublin",
+    "latitude": 53.3419,
+    "longitude": -6.3089,
+    "significance": "First 4 anti-Treaty IRA executed for arms possession",
+    "category": "Civil War",
+    "type": "Execution"
+  },
+  {
+    "date": "1922-12-08",
+    "event": "Mountjoy Executions",
+    "location": "Mountjoy Prison, Dublin",
+    "latitude": 53.3603,
+    "longitude": -6.28,
+    "significance": "Rory O'Connor, Liam Mellows, Richard Barrett, Joe McKelvey shot in reprisal",
+    "category": "Civil War",
+    "type": "Execution"
+  },
+  {
+    "date": "1923-04-10",
+    "event": "Death of Liam Lynch",
+    "location": "Knockmealdown Mountains, County Tipperary",
+    "latitude": 52.25,
+    "longitude": -7.9167,
+    "significance": "Chief of Staff killed - prompted ceasefire",
+    "category": "Civil War",
+    "type": "Combat Death"
+  },
+  {
+    "date": "1923-05-24",
+    "event": "Ceasefire and Dump Arms Order",
+    "location": "Nationwide",
+    "latitude": 53.3498,
+    "longitude": -6.2603,
+    "significance": "Frank Aiken ordered end to fighting - Republican defeat",
+    "category": "Civil War End",
+    "type": "Ceasefire"
+  }
+]

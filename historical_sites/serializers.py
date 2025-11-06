@@ -1,6 +1,7 @@
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework import serializers
 from .models import HistoricalSite
+from .models import CountyBoundary
 
 class HistoricalSiteGeoJSONSerializer(GeoFeatureModelSerializer):
     """Serializer for GeoJSON format"""
@@ -51,3 +52,13 @@ class HistoricalSiteListSerializer(serializers.ModelSerializer):
     
     def get_longitude(self, obj):
         return obj.get_longitude()
+    
+class CountyBoundarySerializer(GeoFeatureModelSerializer):
+    """
+    Serializer for county boundaries as GeoJSON features.
+    Returns geometry in GeoJSON format compatible with Leaflet.
+    """
+    class Meta:
+        model = CountyBoundary
+        fields = ('id', 'name')
+        geo_field = 'geometry'

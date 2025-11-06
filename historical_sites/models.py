@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils import timezone
 
+
 class HistoricalSite(models.Model):
     """Model representing a historical site related to Irish Civil War"""
     
@@ -58,3 +59,14 @@ class HistoricalSite(models.Model):
     def get_longitude(self):
         """Return longitude coordinate"""
         return self.location.x
+    
+class CountyBoundary(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    # accept both Polygon and MultiPolygon
+    geometry = models.GeometryField(srid=4326)  
+    
+    class Meta:
+        app_label = 'historical_sites'
+    
+    def __str__(self):
+        return self.name

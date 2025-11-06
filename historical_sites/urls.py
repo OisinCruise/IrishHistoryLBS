@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'sites', views.HistoricalSiteViewSet, basename='site')
+router.register(r'county-boundaries', views.CountyBoundaryViewSet, basename='county-boundary')
 
 urlpatterns = [
     path('', views.MapView.as_view(), name='map'),
