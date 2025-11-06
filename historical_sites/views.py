@@ -16,6 +16,7 @@ from .serializers import (
 )
 
 
+
 class HistoricalSiteFilter(filters.FilterSet):
     """Filter set for Historical Sites with spatial queries"""
     event_date_from = filters.DateFilter(field_name='event_date', lookup_expr='gte')
@@ -39,6 +40,7 @@ class HistoricalSiteFilter(filters.FilterSet):
         except CountyBoundary.DoesNotExist:
             # County not found, return empty queryset
             return queryset.none()
+
 
 
 class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
@@ -106,6 +108,7 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
         except (TypeError, ValueError) as e:
             return Response({'error': f'Invalid parameter: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
+
     @action(detail=False, methods=['get'])
     def timeline(self, request):
         """Get sites within a date range"""
@@ -125,6 +128,7 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
             'date_range': {'start': start_date, 'end': end_date},
             'sites': serializer.data
         })
+
 
     @action(detail=False, methods=['get'])
     def categories(self, request):
@@ -153,6 +157,7 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
             })
         except (ValueError, IndexError) as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
     @action(detail=False, methods=['get'])
     def buffer_zone(self, request):
@@ -195,6 +200,7 @@ class HistoricalSiteViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class MapView(TemplateView):
     """Main map view"""
     template_name = 'map.html'
@@ -204,6 +210,7 @@ class MapView(TemplateView):
         context['total_sites'] = HistoricalSite.objects.count()
         context['total_counties'] = CountyBoundary.objects.count()
         return context
+
 
 
 class CountyBoundaryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -218,3 +225,41 @@ class CountyBoundaryViewSet(viewsets.ReadOnlyModelViewSet):
         from django.contrib.gis.serializers import geojson
         counties = self.get_queryset()
         return Response(geojson.serialize('geojson', counties, geometry_field='geometry'))
+    
+    @action(detail=False, methods=['get'])
+    def geojson_with_colors(self, request):
+        """Return county boundaries as GeoJSON FeatureCollection with color properties"""
+        import json
+        
+        # Color palette for counties
+        colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+            '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B88B', '#A3E4D7',
+            '#F1948A', '#85C1E2', '#F7DC6F', '#D7BDE2', '#A9DFBF',
+            '#F8B88B', '#AED6F1', '#F1948A', '#D5A6BD', '#FAD7A0',
+            '#85C1E2', '#F7DC6F', '#BB8FCE', '#A9CCE3', '#F8B88B',
+            '#F1948A', '#AED6F1'
+        ]
+        
+        counties = self.get_queryset()
+        features = []
+        
+        for idx, county in enumerate(counties):
+            # Convert geometry to GeoJSON using .geojson property
+            geom_json = json.loads(county.geometry.geojson)
+            
+            feature = {
+                'type': 'Feature',
+                'properties': {
+                    'name': county.name,
+                    'color': colors[idx % len(colors)],
+                    'id': county.id
+                },
+                'geometry': geom_json
+            }
+            features.append(feature)
+        
+        return Response({
+            'type': 'FeatureCollection',
+            'features': features
+        })
