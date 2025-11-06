@@ -102,7 +102,8 @@ irish-civil-war-lbs/
 │   └── management/
 │       ├─── commands/
 │       ├────── load_historical_sites.py
-│       └────── load_county_boundaries_from_geojson.py
+│       ├────── load_county_boundaries_from_geojson.py
+│       └────── update_sites_with_images.py
 │
 ├── templates/                         # Global templates
 │   ├── base.html                      # Base template
@@ -198,6 +199,14 @@ docker-compose exec django python manage.py collectstatic --noinput
 
 5. Access the application
   - Open `http://127.0.0.1` in your browser
+  - Access PGAdmin at `http://localhost:5050`
+    - Login with credentials from `.env` file (PGADMIN_EMAIL and PGADMIN_PASSWORD)
+    - Add new server:
+      - Name: irish_civil_war_db
+      - Host: db
+      - Port: 5432
+      - Username: irish_admin
+      - Password: [DB_PASSWORD from .env]
 
 
 ---
